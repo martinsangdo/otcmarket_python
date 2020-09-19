@@ -30,6 +30,7 @@ def send_mail(detail):
     #compose message
     body_content = ''
     body_content = body_content + 'From: '+detail['email']+'\n\n'
+    body_content = body_content + detail['message']+'\n\n'
     options = json.loads(detail['options'])
     options_str = ''
     for key in options:
