@@ -26,3 +26,4 @@ ALPHABET_CHARS = [
     '0','1','2','3','4','5','6','7','8','9'
 ]
 DB_COLLECTION_VN_STOCKS = 'vnstock'
+DB_COLLECTION_VN_INDUSTRY = 'vnindustry'

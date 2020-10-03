@@ -15,7 +15,7 @@ def getCurrentTimestamp():
 #######################
 #upsert movie detail
 def upsert_detail(db_client, list):
-    #find if stock is existed (soft deleted or not)
+    #find if stock is existed
     for stock in list:
         record = db_client[const.DB_COLLECTION_VN_STOCKS].find_one({'raw_code':stock['code'].lower()})
         if record is None:
