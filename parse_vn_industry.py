@@ -6,7 +6,6 @@ import requests
 import time
 from pymongo import MongoClient
 import calendar
-import sys
 import const
 
 #######################
