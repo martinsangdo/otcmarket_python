@@ -68,28 +68,14 @@ def parse_page_detail(page_url, detail):
     detail['description'] = description[0].text_content().strip()
     return
 #######################
-def parse_page_list(db_client, profile_urls):
-    page = ''
-    page_url = 'http://sanotc.com/otc'
-    while page == '':
-        try:
-            page = requests.get(page_url, headers={'User-Agent': 'Mozilla/5.0'})
-            break
-        except:
-            time.sleep(5)
-            continue
-    # print page.content
-    tree = html.fromstring(page.content)
-    #sale posts
-    sale_posts = tree.xpath('//div[@id="otclisting0"]/table/tr')
-    # print len(sale_posts)
+def get_posts(type, posts, db_client, profile_urls):
     row_index = 0;
-    for sale_post in sale_posts:
+    for post in posts:
         if row_index == 0:
             row_index = row_index + 1
             continue;  #skip label row
         detail = {}
-        cols = sale_post.xpath('./td')
+        cols = post.xpath('./td')
         col_index = 0
         for col in cols:
             if col_index == 0:
@@ -111,9 +97,28 @@ def parse_page_list(db_client, profile_urls):
             if col_index == 3:
                 detail['display_time'] = col.text_content().strip()
             col_index = col_index + 1
-        detail['type'] = 'sale'
+        detail['type'] = type
         upsert_detail(db_client, detail)
-        # print detail
+    return
+#######################
+def parse_page_list(db_client, profile_urls):
+    page = ''
+    page_url = 'http://sanotc.com/otc'
+    while page == '':
+        try:
+            page = requests.get(page_url, headers={'User-Agent': 'Mozilla/5.0'})
+            break
+        except:
+            time.sleep(5)
+            continue
+    # print page.content
+    tree = html.fromstring(page.content)
+    #sale posts
+    sale_posts = tree.xpath('//div[@id="otclisting0"]/table/tr')
+    get_posts('sale', sale_posts, db_client, profile_urls)
+    #buy posts
+    buy_posts = tree.xpath('//div[@id="otclisting1"]/table/tr')
+    get_posts('buy', buy_posts, db_client, profile_urls)
 
     return
 ####################### main
