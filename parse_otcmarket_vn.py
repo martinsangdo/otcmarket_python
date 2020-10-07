@@ -41,7 +41,7 @@ def upsert_detail(db_client, detail):
             detail['transaction_id'] = record['transaction_id']
         db_client[const.DB_COLLECTION_VN_POST].update({'post_id':detail['post_id']}, detail)
     return
-#######################
+####################### parse detail page of post
 def parse_page_detail(page_url, detail):
     page = ''
     while page == '':
@@ -67,7 +67,7 @@ def parse_page_detail(page_url, detail):
     description = tree.xpath('//div[@id="stockdetail"]/div[@class="col-sm-12 marginBottom20"]/div[@class="row"]/p')
     detail['description'] = description[0].text_content().strip()
     return
-#######################
+####################### analyze each list of posts
 def get_posts(type, posts, db_client, profile_urls):
     row_index = 0;
     for post in posts:
@@ -100,7 +100,7 @@ def get_posts(type, posts, db_client, profile_urls):
         detail['type'] = type
         upsert_detail(db_client, detail)
     return
-#######################
+####################### parse homepage
 def parse_page_list(db_client, profile_urls):
     page = ''
     page_url = 'http://sanotc.com/otc'
@@ -121,13 +121,61 @@ def parse_page_list(db_client, profile_urls):
     get_posts('buy', buy_posts, db_client, profile_urls)
 
     return
+#######################
+def parse_profile(db_client, profile_url):
+    page = ''
+    while page == '':
+        try:
+            page = requests.get(profile_url, headers={'User-Agent': 'Mozilla/5.0'})
+            break
+        except:
+            time.sleep(5)
+            continue
+    # print page.content
+    tree = html.fromstring(page.content)
+    brokername = tree.xpath('//h2[@class="brokername"]')
+    username = brokername[0].text_content().strip()
+    #get phone & email
+    broker_info = tree.xpath('//div[@class="row brokerinfo"]/div/b')
+    phone = broker_info[0].text_content().strip()
+    email = broker_info[1].text_content().strip()
+    #upsert db
+    if username is None or username is '':
+        return
+    #find if record is existed
+    record = db_client[const.DB_COLLECTION_VN_USER].find_one({'username':username})
+    if record is None:
+        #not existed
+        detail = {
+            'username': username,
+            'phone': phone,
+            'email': email,
+            'hide_phone': 'false',
+            'hide_email': 'false',
+            'name': username,   #default
+            'created_time': getCurrentTimestamp(),
+            'updated_time': getCurrentTimestamp(),
+            'is_active': 'true',
+            'source': 'sanotc'
+        }
+        db_client[const.DB_COLLECTION_VN_USER].insert_one(detail)
+    else:
+        #update
+        record['updated_time'] = getCurrentTimestamp()
+        if 'phone' in record:
+            record['phone'] = phone
+        if 'email' in record:
+            record['email'] = email
+        db_client[const.DB_COLLECTION_VN_USER].update({'username':username}, record)
+    return
 ####################### main
 client = MongoClient('localhost:27017')
 db_client = client['otcmarket_vn']
 start_time = getCurrentTimestamp()
-profile_urls = []
-parse_page_list(db_client, profile_urls)
-print profile_urls
+profile_urls = ["http://sanotc.com/profile/nhatthuy"]
+# parse_page_list(db_client, profile_urls)
+# print profile_urls
+parse_profile(db_client, "http://sanotc.com/profile/nhatthuy")
 #
 end_time = getCurrentTimestamp()
 total_time = end_time - start_time
