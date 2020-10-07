@@ -172,10 +172,14 @@ def parse_profile(db_client, profile_url):
 client = MongoClient('localhost:27017')
 db_client = client['otcmarket_vn']
 start_time = getCurrentTimestamp()
-profile_urls = ["http://sanotc.com/profile/nhatthuy"]
-# parse_page_list(db_client, profile_urls)
-# print profile_urls
-parse_profile(db_client, "http://sanotc.com/profile/nhatthuy")
+profile_urls = []
+parse_page_list(db_client, profile_urls)
+if len(profile_urls) > 1:
+    #remove duplicated urls
+    profile_urls = list(dict.fromkeys(profile_urls))
+    # print profile_urls
+    for profile_url in profile_urls:
+        parse_profile(db_client, profile_url)
 #
 end_time = getCurrentTimestamp()
 total_time = end_time - start_time
