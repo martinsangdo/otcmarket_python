@@ -7,7 +7,21 @@ import time
 from pymongo import MongoClient
 import calendar
 import const
-
+import re
+#extract vn phone number from text
+def extract_phone_number_from_text(org_str):
+    if org_str == "":
+        return ""
+    org_str = org_str.strip()
+    raw_str = org_str.replace('.','').replace('-','')
+    phones = re.findall(r'[\+\(]?[0-9][0-9 .\-\(\)]{8,}[0-9]', raw_str)
+    new_phones = []
+    for phone in phones:
+        if phone is not None and phone is not '' and len(phone) < 15:
+            new_phones.append(phone.replace(' ',''))
+        else:
+            new_phones.append(phone)
+    return new_phones
 #######################
 def getCurrentTimestamp():
     return calendar.timegm(time.gmtime())
@@ -66,6 +80,7 @@ def parse_page_detail(page_url, detail):
     #find description
     description = tree.xpath('//div[@id="stockdetail"]/div[@class="col-sm-12 marginBottom20"]/div[@class="row"]/p')
     detail['description'] = description[0].text_content().strip()
+    detail['phones'] = extract_phone_number_from_text(detail['description'])
     return
 ####################### analyze each list of posts
 def get_posts(type, posts, db_client, profile_urls):
