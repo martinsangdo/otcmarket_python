@@ -37,12 +37,12 @@ def extract_post_id(detail_url):
 def upsert_detail(db_client, detail):
     #find if record is existed
     record = db_client[const.DB_COLLECTION_VN_POST].find_one({'post_id':detail['post_id']})
-    detail['is_expired'] = 'false'
+    detail['is_expired'] = 0
     detail['updated_time'] = getCurrentTimestamp()
     if record is None:
         #not existed
         detail['created_time'] = getCurrentTimestamp()
-        detail['is_active'] = 'true'
+        detail['is_active'] = 1
         db_client[const.DB_COLLECTION_VN_POST].insert_one(detail)
     else:
         #update
@@ -165,12 +165,12 @@ def parse_profile(db_client, profile_url):
             'username': username,
             'phone': phone,
             'email': email,
-            'hide_phone': 'false',
-            'hide_email': 'false',
+            'hide_phone': 0,
+            'hide_email': 0,
             'name': username,   #default
             'created_time': getCurrentTimestamp(),
             'updated_time': getCurrentTimestamp(),
-            'is_active': 'true',
+            'is_active': 1,
             'source': 'sanotc'
         }
         db_client[const.DB_COLLECTION_VN_USER].insert_one(detail)
