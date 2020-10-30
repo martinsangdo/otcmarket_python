@@ -128,9 +128,9 @@ def parse_page_list(db_client, profile_urls):
             continue
     # print page.content
     tree = html.fromstring(page.content)
-    #sale posts
-    sale_posts = tree.xpath('//div[@id="otclisting0"]/table/tr')
-    get_posts('sale', sale_posts, db_client, profile_urls)
+    #sell posts
+    sell_posts = tree.xpath('//div[@id="otclisting0"]/table/tr')
+    get_posts('sell', sell_posts, db_client, profile_urls)
     #buy posts
     buy_posts = tree.xpath('//div[@id="otclisting1"]/table/tr')
     get_posts('buy', buy_posts, db_client, profile_urls)
