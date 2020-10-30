@@ -108,7 +108,7 @@ def get_posts(type, posts, db_client, profile_urls):
             if col_index == 1:
                 detail['price'] = col.text_content().strip()
             if col_index == 2:
-                detail['volumn'] = col.text_content().strip()
+                detail['volume'] = col.text_content().strip()
             if col_index == 3:
                 detail['display_time'] = col.text_content().strip()
             col_index = col_index + 1
